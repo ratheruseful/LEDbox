@@ -3,6 +3,7 @@ import neopixel
 import time
 import colorsys
 import math
+import random
 
 pixels = neopixel.NeoPixel(board.D18, 30)
 
@@ -77,4 +78,80 @@ def colorTempFill(temperature,brightness):
    blue = 255
  
  pixels.fill((int(red*brightness),int(green*brightness),int(blue*brightness)))
+ 
+def fire(mean,sd,frametime,brightness):
 
+ temperature=mean
+ mark=time.time()
+ nextframe=mark+frametime
+ 
+ while(1):
+  colorTempFill(temperature,brightness)
+  diff=temperature-mean
+  temperature += random.randint(-sd-diff,sd-diff)
+  waitTime = max(0,(nextframe-time.time()))
+  if (waitTime==0):
+   print("SLOW!")
+  time.sleep(waitTime)
+  nextframe=time.time()+frametime
+
+def hueLoop(saturation,frametime,brightness):
+ i=0
+ mark=time.time()
+ nextframe=mark+frametime
+ 
+ while(1):
+  HSVfill(i,saturation,brightness)
+  waitTime = max(0,(nextframe-time.time()))
+  if (waitTime==0):
+   print("SLOW!")
+  time.sleep(waitTime)
+  nextframe=time.time()+frametime
+  i += 0.01
+  
+def hueStrobe(saturation,frametime,brightness):
+ i=0
+ mark=time.time()
+ nextframe=mark+frametime
+ 
+ while(1):
+  HSVfill(i,saturation,brightness)
+  waitTime = max(0,(nextframe-time.time()))
+  if (waitTime==0):
+   print("SLOW!")
+  time.sleep(waitTime)
+  nextframe=time.time()+frametime
+  black()
+  waitTime = max(0,(nextframe-time.time()))
+  if (waitTime==0):
+   print("SLOW!")
+  time.sleep(waitTime)
+  nextframe=time.time()+frametime
+  i += 0.01 
+  
+def hueBounce(saturation,frametime,brightness,hueStep,brightStep):
+ i=0
+ mark=time.time()
+ nextframe=mark+frametime
+ 
+ while(1):
+  j=0
+  while(j<brightness):
+   HSVfill(i,saturation,j)
+   waitTime = max(0,(nextframe-time.time()))
+   if (waitTime==0):
+    print("SLOW!")
+   time.sleep(waitTime)
+   nextframe=time.time()+frametime
+   j+=brightStep
+  while(j>0):
+   HSVfill(i,saturation,j)
+   waitTime = max(0,(nextframe-time.time()))
+   if (waitTime==0):
+    print("SLOW!")
+   time.sleep(waitTime)
+   nextframe=time.time()+frametime
+   j-=brightStep
+  i+=hueStep
+
+  
