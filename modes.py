@@ -5,21 +5,32 @@ import colorsys
 import math
 import random
 
-pixels = neopixel.NeoPixel(board.D18, 30)
+pixelCount=150
+
+pixels = neopixel.NeoPixel(board.D18,pixelCount, brightness=1, auto_write=False)
+
+def smartSleep(startTime,delay):
+ sleepTime=max(startTime+delay,time.time())-time.time()+0.0001
+ time.sleep(sleepTime)
+ return (time.time())
 
 def white():
  pixels.fill((20,24,20))
+ pixels.show()
 	
 def black():
  pixels.fill((0,0,0))
+ pixels.show()
 
 def RGBfill(r,g,b):
  pixels.fill((r,g,b))
+ pixels.show()
 
 def HSVfill(h,s,v):
  rgb = colorsys.hsv_to_rgb(h,s,v)
 
  pixels.fill((int(rgb[0]*255),int(rgb[1]*255),int(rgb[2]*255)))
+ pixels.show()
 
 def s(s):
  time.sleep(s)
@@ -154,4 +165,46 @@ def hueBounce(saturation,frametime,brightness,hueStep,brightStep):
    j-=brightStep
   i+=hueStep
 
-  
+def dither(brightness,dutyCycle,cycleTime):
+  onTime = cycleTime*dutyCycle
+  offTime = cycleTime-onTime
+  startTime=time.time()
+
+  while(1):
+   HSVfill(0,1,brightness)
+   startTime=smartSleep(startTime,onTime)
+   black()
+   startTime=smartSleep(startTime,offTime)
+
+def rainbow(brightness,frametime,hueStep,hueStep2):
+  hue = 0
+  while(1):
+    i=0
+    innerHue=hue
+    while (i<pixelCount):
+      rgb = colorsys.hsv_to_rgb(innerHue,1,brightness)
+      pixels[i]=((int(rgb[0]*255),int(rgb[1]*255),int(rgb[2]*255)))
+      i+=1
+      innerHue+=hueStep
+    pixels.show()
+    hue+=hueStep2
+
+def HSVbow(hueStep,hueStep2,satStep,satStep2,briStep,briStep2):
+  hue = sat = bri = .999
+  while(1):
+    i=0
+    innerHue=hue
+    innerBri=bri
+    innerSat=sat
+    while (i<pixelCount):
+      rgb = colorsys.hsv_to_rgb(innerHue,innerSat%1,innerBri%1)
+      pixels[i]=((int(rgb[0]*255),int(rgb[1]*255),int(rgb[2]*255)))
+      i+=1
+      innerHue+=hueStep
+      innerBri+=briStep
+      innerSat+=satStep
+    pixels.show()
+    hue+=hueStep2
+    bri+=briStep2
+    sat+=satStep2
+      
